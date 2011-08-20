@@ -26,9 +26,20 @@ function search_api_ajax_search_api_ajax_settings() {
   // @see search_api_ajax.js
   $current_search = search_api_current_search();
   foreach ($current_search as $key => $search) {
-    $path = explode(':', $key);
-    drupal_add_js(array('search_api_ajax_path' => $path[1]), 'setting');
-    $settings['path'] = $path[1];
+    $path_parts = explode(':', $key);
+
+    // is it a view path or a search_api_page?
+    // views paths have 3 parts, search pages only 2
+    if ($path_parts[0] == 'search_api_views') {
+      $path = $path_parts[2];
+      $settings['view'] = 1;
+    }
+    else {
+      $path = $path_parts[1];
+      $settings['view'] = 0;
+    }
+    drupal_add_js(array('search_api_ajax_path' => $path), 'setting');
+    $settings['path'] = $path;
   }
 
   return $settings;
@@ -51,6 +62,26 @@ function search_api_ajax_menu() {
         'type' => MENU_CALLBACK,
         'file' => 'search_api_ajax.pages.inc',
       );
+    }
+  }
+  // similarly, walk through search_api_views with a path (pages)
+  if (module_exists('search_api_views') && function_exists('views_get_enabled_views')) {
+    foreach (views_get_enabled_views() as $view) {
+      if (strpos($view->base_table, 'search_api_index') !== FALSE) {
+        foreach($view->display as $display_name => $display) {
+          if (isset($display->display_options['path']) && !(empty($display->display_options['path']))) {
+            $items['search_api_ajax/' . $display->display_options['path']] = array(
+              'title' => isset($display->display_title) ? $display->display_title : '',
+              'description' => (string) $view->human_name,
+              'page callback' => 'search_api_ajax_proxy_views',
+              'page arguments' => array((string) $view->name, (string) $display_name),
+              'access arguments' => array('view published content'),
+              'type' => MENU_CALLBACK,
+              'file' => 'search_api_ajax.pages.inc',
+            );
+          }
+        }
+      }
     }
   }
   return $items;
