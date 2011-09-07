@@ -11,7 +11,10 @@
     var fade = Drupal.settings.search_api_ajax.fade;
     var opacity = Drupal.settings.search_api_ajax.opacity;
     var speed = Drupal.settings.search_api_ajax.scrollspeed;
-    var ajaxPath = Drupal.settings.search_api_ajax.path;
+    // notice the "search_api_ajax_path" instead of
+    // "search_api_ajax.path" for magic reasons
+    // uses JS native encodeURI() to replace spaces with %20
+    var ajaxPath = encodeURI(Drupal.settings.search_api_ajax_path);
     var isView = Drupal.settings.search_api_ajax.view;
 
     // initialize listeners
@@ -126,11 +129,12 @@
     Drupal.search_api_ajax.ajax = function(selector) {
 
       // observe regular facet and sorts links
-      $(selector + ' a[href*="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('click', function() {
+      // @see http://api.jquery.com/category/selectors/attribute-selectors/
+      $(selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('click', function() {
         return Drupal.search_api_ajax.navigate($(this).attr('href'));
       });
       // observe search keys forms (or views input forms, must be custom set)
-      $(selector + ' form[action*="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
         return Drupal.search_api_ajax.navigate($(this).find('input[name*="keys"]').val());
       });
       // observe search refine options
@@ -138,7 +142,7 @@
         return Drupal.search_api_ajax.navigate($(this).val());
       });
       // observe facet range sliders
-      $(selector + ' .search-api-ranges-widget form[action*="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
         var separator = '?';
         if($(this).find('input[name="range-ajax-target"]').val().indexOf("?") !== -1) {
           separator = '&';

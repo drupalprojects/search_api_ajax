@@ -26,19 +26,30 @@ function search_api_ajax_search_api_ajax_settings() {
   // @see search_api_ajax.js
   $current_search = search_api_current_search();
   foreach ($current_search as $key => $search) {
+
+    // break on facet blocks - $path is only useful for pages, avoid blocks
+    if (strpos($key, 'facets_block') !== FALSE) {
+      break;
+    }
     $path_parts = explode(':', $key);
 
     // is it a view path or a search_api_page?
     // views paths have 3 parts, search pages only 2
     if ($path_parts[0] == 'search_api_views') {
-      $path = $path_parts[2];
+      $trail = menu_set_active_trail();
+      $views_path = isset($trail[1]['link_path']) ? $trail[1]['link_path'] : $trail[1]['path'];
+      $path = search_api_ajax_get_views_path($views_path);
       $settings['view'] = 1;
     }
     else {
       $path = $path_parts[1];
       $settings['view'] = 0;
     }
-    drupal_add_js(array('search_api_ajax_path' => $path), 'setting');
+    if (!empty($path)) {
+
+      // needed to add current page path to ajax
+      drupal_add_js(array('search_api_ajax_path' => $path), 'setting');
+    }
     $settings['path'] = $path;
   }
 
@@ -142,6 +153,9 @@ function search_api_ajax_modules() {
  * @see http://developer.yahoo.com/yui/history/
  */
 function search_api_ajax_preprocess_page(&$vars, $hook) {
+  if (!search_api_current_search()) {
+    return;
+  }
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
   drupal_add_js(drupal_get_path('module', 'search_api_ajax') .'/jquery.livequery.js');
   theme('search_api_ajax_js');
@@ -180,4 +194,33 @@ function theme_search_api_ajax_js() {
   drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
   drupal_add_js('http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js', 'external');
   drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.js', array('scope' => 'footer'));
+}
+
+/**
+ * Get the actual views path
+ * Filling in '%' arguments in the path with the correct values from arg()
+ *
+ * @param string $views_path
+ *   The views page path, e.g. 'mynodes', 'mynodes/%'
+ *
+ * @param int $skip
+ *   The number of arguments to skip (usually only needed on
+ *   search_api_ajax/* pages).
+ */
+function search_api_ajax_get_views_path($views_path, $skip = 0) {
+  $path = '';
+  $current_path = arg();
+
+  // fill in % paths: we know the views_path, which may contain % arguments
+  // so we need to fill in those % with the current page from arg()
+  // @todo is there a 'Drupal way' to do this?
+  $path = explode('/', $views_path);
+  foreach (arg(NULL, $views_path) as $key => $piece) {
+    if ($piece == '%') {
+      $path[$key] = $current_path[$key + $skip];
+    }
+  }
+  $path = implode('/', $path);
+
+  return $path;
 }

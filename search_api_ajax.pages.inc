@@ -22,7 +22,7 @@ function search_api_ajax_proxy_views($name, $display, $keys = NULL) {
     return MENU_NOT_FOUND;
   }
 
-  $path = $view->display[$display]->display_options['path'];
+  $path = search_api_ajax_get_views_path($view->display[$display]->display_options['path'], 1);
   if ($keys) {
     $path = $path . '/' . $keys;
   }
