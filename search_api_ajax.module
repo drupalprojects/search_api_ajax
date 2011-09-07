@@ -28,7 +28,7 @@ function search_api_ajax_search_api_ajax_settings() {
   foreach ($current_search as $key => $search) {
 
     // break on facet blocks - $path is only useful for pages, avoid blocks
-    if (strpos($key, 'facets_block') !== FALSE) {
+    if (strpos($key, 'facets_block') !== FALSE || arg(0) == 'admin') {
       break;
     }
     $path_parts = explode(':', $key);
@@ -208,7 +208,7 @@ function theme_search_api_ajax_js() {
  *   search_api_ajax/* pages).
  */
 function search_api_ajax_get_views_path($views_path, $skip = 0) {
-  $path = '';
+  $path = array();
   $current_path = arg();
 
   // fill in % paths: we know the views_path, which may contain % arguments
@@ -220,7 +220,7 @@ function search_api_ajax_get_views_path($views_path, $skip = 0) {
       $path[$key] = $current_path[$key + $skip];
     }
   }
-  $path = implode('/', $path);
 
+  $path = implode('/', $path);
   return $path;
 }

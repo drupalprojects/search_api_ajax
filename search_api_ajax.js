@@ -128,21 +128,18 @@
 
     Drupal.search_api_ajax.ajax = function(selector) {
 
-      // observe regular facet and sorts links
+      // observe regular facet and sorts links ^ starts with * contains
+      // check two paths: ^basePath/ajaxPath OR ^search_api_ajax/basePath/ajaxPath
       // @see http://api.jquery.com/category/selectors/attribute-selectors/
-      $(selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('click', function() {
+      $(selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').livequery('click', function() {
         return Drupal.search_api_ajax.navigate($(this).attr('href'));
       });
       // observe search keys forms (or views input forms, must be custom set)
-      $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').livequery('submit', function() {
         return Drupal.search_api_ajax.navigate($(this).find('input[name*="keys"]').val());
       });
-      // observe search refine options
-      $(selector + ' li.search-refine-option input[type=checkbox]').livequery('change', function() {
-        return Drupal.search_api_ajax.navigate($(this).val());
-      });
       // observe facet range sliders
-      $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').livequery('submit', function() {
         var separator = '?';
         if($(this).find('input[name="range-ajax-target"]').val().indexOf("?") !== -1) {
           separator = '&';
