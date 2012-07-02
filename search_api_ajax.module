@@ -10,13 +10,42 @@
 function search_api_ajax_search_api_ajax_settings() {
   global $theme_key;
   $settings = array();
-  $regions = system_region_list($theme_key);
 
-  // add facets, sorts and ranges blocks by default for compatibility
-  foreach ($regions as $region_key => $region_name) {
-    $blocks = block_list($region_key);
+  // get all drupal blocks
+  $settings['blocks'] = &drupal_static(__FUNCTION__);
+  if (!isset($settings['blocks'])) {
+    $blocks = array();
+
+    // Drupal blocks
+    // @todo cache this?
+    $regions = system_region_list($theme_key);
+    foreach ($regions as $region_key => $region_name) {
+      $settings['regions'][] = $region_key;
+      $block_list = block_list($region_key);
+
+      // remove inactive blocks (status=0)
+      foreach ($block_list as $key => $block) {
+        if ($block->status == 0) {
+          unset($block_list[$key]);
+        }
+      }
+      $blocks = array_merge(block_list($region_key), $blocks);
+      if (module_exists('context')) {
+        $blocks = array_merge(context_get_plugin('reaction', 'block')->block_list($region_key), $blocks);
+      }
+    }
+
+    $modules = search_api_ajax_modules();
     foreach ($blocks as $block) {
-      if ($block->status == 1 && in_array($block->module, array('search_api_facets', 'search_api_ranges', 'search_api_sorts', 'search_api_widgets'))) {
+      if (in_array($block->module, $modules)) {
+        
+        // facetapi block names are strtolowered in html, so do same here
+        if (in_array($block->module, array(
+          'facetapi',
+          'facetapi_tagcloud'
+        ))) {
+          $block->delta = strtolower($block->delta);
+        }
         $settings['blocks'][$block->module . '_' . $block->delta] = str_replace('_', '-', '#block-' . $block->module . '-' . $block->delta);
       }
     }
@@ -37,7 +66,11 @@ function search_api_ajax_search_api_ajax_settings() {
     // views paths have 3 parts, search pages only 2
     if ($path_parts[0] == 'search_api_views') {
       $trail = menu_set_active_trail();
-      $views_path = isset($trail[1]['link_path']) ? $trail[1]['link_path'] : $trail[1]['path'];
+
+      // process last entry
+      end($trail);
+      $key = key($trail);
+      $views_path = isset($trail[$key]['link_path']) ? $trail[$key]['link_path'] : $trail[$key]['path'];
       $path = search_api_ajax_get_views_path($views_path);
       $settings['view'] = 1;
     }
@@ -45,8 +78,9 @@ function search_api_ajax_search_api_ajax_settings() {
       $path = $path_parts[1];
       $settings['view'] = 0;
     }
-    if (!empty($path)) {
 
+    if (!empty($path)) {
+      
       // needed to add current page path to ajax
       drupal_add_js(array('search_api_ajax_path' => $path), 'setting');
     }
@@ -61,6 +95,20 @@ function search_api_ajax_search_api_ajax_settings() {
  */
 function search_api_ajax_menu() {
   $items = array();
+  
+  // during uninstallation, this would lead to a fatal error otherwise.
+  if (module_exists('taxonomy')) {
+    $items['search_api_ajax/%/%'] = array(
+      'title' => '',
+      'description' => '',
+      'page callback' => 'search_api_ajax_proxy_taxonomy',
+      'page arguments' => array(),
+      'access arguments' => array('view published content'),
+      'type' => MENU_CALLBACK,
+      'file' => 'search_api_ajax.pages.inc',
+    );
+  }
+
   // during uninstallation, this would lead to a fatal error otherwise.
   if (module_exists('search_api_page')) {
     foreach (search_api_page_load_multiple(FALSE, array('enabled' => TRUE)) as $page) {
@@ -68,24 +116,28 @@ function search_api_ajax_menu() {
         'title' => $page->name,
         'description' => $page->description ? $page->description : '',
         'page callback' => 'search_api_ajax_proxy',
-        'page arguments' => array((string) $page->id),
+        'page arguments' => array((string)$page->id),
         'access arguments' => array('access search_api_page'),
         'type' => MENU_CALLBACK,
         'file' => 'search_api_ajax.pages.inc',
       );
     }
   }
+
   // similarly, walk through search_api_views with a path (pages)
   if (module_exists('search_api_views') && function_exists('views_get_enabled_views')) {
     foreach (views_get_enabled_views() as $view) {
       if (strpos($view->base_table, 'search_api_index') !== FALSE) {
-        foreach($view->display as $display_name => $display) {
+        foreach ($view->display as $display_name => $display) {
           if (isset($display->display_options['path']) && !(empty($display->display_options['path']))) {
             $items['search_api_ajax/' . $display->display_options['path']] = array(
               'title' => isset($display->display_title) ? $display->display_title : '',
-              'description' => (string) $view->human_name,
+              'description' => (string)$view->human_name,
               'page callback' => 'search_api_ajax_proxy_views',
-              'page arguments' => array((string) $view->name, (string) $display_name),
+              'page arguments' => array(
+                (string)$view->name,
+                (string)$display_name
+              ),
               'access arguments' => array('view published content'),
               'type' => MENU_CALLBACK,
               'file' => 'search_api_ajax.pages.inc',
@@ -106,7 +158,14 @@ function search_api_ajax_menu() {
 function search_api_ajax_modules() {
   static $modules = NULL;
   if (is_null($modules)) {
-    $modules = array('search_api_facets', 'search_api_ranges', 'search_api_sorts', 'search_api_widgets');
+    $modules = array(
+      'search_api_facets',
+      'search_api_ranges',
+      'search_api_sorts',
+      'search_api_widgets',
+      'facetapi',
+      'facetapi_tagcloud',
+    );
     drupal_alter('search_api_ajax_modules', $modules);
   }
   return $modules;
@@ -157,7 +216,7 @@ function search_api_ajax_preprocess_page(&$vars, $hook) {
     return;
   }
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
-  drupal_add_js(drupal_get_path('module', 'search_api_ajax') .'/jquery.livequery.js');
+  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/jquery.livequery.js');
   theme('search_api_ajax_js');
 }
 
@@ -178,11 +237,7 @@ function search_api_ajax_debug($data = NULL) {
  * Implementation of hook_theme().
  */
 function search_api_ajax_theme($existing, $type, $theme, $path) {
-  return array(
-    'search_api_ajax_js' => array(
-      'arguments' => array(),
-    ),
-  );
+  return array('search_api_ajax_js' => array('arguments' => array()));
 }
 
 /**
