@@ -32,17 +32,6 @@ function search_api_ajax_proxy_views($name, $display, $keys = NULL) {
 }
 
 /**
- * Checks incoming AJAX requests for Taxonomy term paths
- */
-function search_api_ajax_proxy_taxonomy() {
-  $args = arg();
-  $path = $args[1] . '/' . $args[2];
-  $path = drupal_lookup_path('source', $path);
-  $return = menu_execute_active_handler($path, FALSE);
-  search_api_ajax_return_json($return);
-}
-
-/**
  * Performs a search request and returns page & block content html as JSON
  *
  * If the incoming request is not an AJAX request, user/bot is redirected
@@ -75,7 +64,6 @@ function search_api_ajax_return_json($return) {
   }
   elseif (isset($return)) {
     global $theme;
-
     if (!isset($theme)) {
       init_theme();
     }
@@ -113,18 +101,12 @@ function search_api_ajax_return_json($return) {
       if (in_array($block->module, $modules)) {
         $rendered_block = _block_render_blocks(array($block));
         $rendered_block = _block_get_renderable_array($rendered_block);
-        // Facetapi block names are strtolowered in html, so do same here.
-        if (in_array($block->module, array(
-          'facetapi',
-          'facetapi_tagcloud'
-        ))) {
-          $block->delta = strtolower($block->delta);
-        }
         $json['regions'][$block->region][$block->module . '_' . $block->delta] = drupal_render($rendered_block);
 
         // new blocks may have come into existence, we notify about them
         // otherwise they would never be displayed to the user
         // @see search_api_ajax.js
+        $block_delta = strtolower($block->delta);
         $json['blocks'][$block->module . '_' . $block->delta] = str_replace('_', '-', '#block-' . $block->module . '-' . $block->delta);
       }
     }

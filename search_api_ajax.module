@@ -97,19 +97,6 @@ function search_api_ajax_menu() {
   $items = array();
 
   // during uninstallation, this would lead to a fatal error otherwise.
-  if (module_exists('taxonomy')) {
-    $items['search_api_ajax/%/%'] = array(
-      'title' => '',
-      'description' => '',
-      'page callback' => 'search_api_ajax_proxy_taxonomy',
-      'page arguments' => array(),
-      'access arguments' => array('view published content'),
-      'type' => MENU_CALLBACK,
-      'file' => 'search_api_ajax.pages.inc',
-    );
-  }
-
-  // during uninstallation, this would lead to a fatal error otherwise.
   if (module_exists('search_api_page')) {
     foreach (search_api_page_load_multiple(FALSE, array('enabled' => TRUE)) as $page) {
       $items['search_api_ajax/' . $page->path] = array(
@@ -239,13 +226,6 @@ function search_api_ajax_debug($data = NULL) {
     $debug[] = $data;
   }
   return $debug;
-}
-
-/**
- * Implementation of hook_theme().
- */
-function search_api_ajax_theme($existing, $type, $theme, $path) {
-  return array('search_api_ajax_js' => array('arguments' => array()));
 }
 
 /**
