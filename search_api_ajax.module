@@ -138,7 +138,7 @@ function search_api_ajax_menu() {
                 (string)$view->name,
                 (string)$display_name
               ),
-              'access arguments' => array('view published content'),
+              'access arguments' => array('access content'),
               'type' => MENU_CALLBACK,
               'file' => 'search_api_ajax.pages.inc',
             );
