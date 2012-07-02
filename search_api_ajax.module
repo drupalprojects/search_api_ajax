@@ -38,7 +38,7 @@ function search_api_ajax_search_api_ajax_settings() {
     $modules = search_api_ajax_modules();
     foreach ($blocks as $block) {
       if (in_array($block->module, $modules)) {
-        
+
         // facetapi block names are strtolowered in html, so do same here
         if (in_array($block->module, array(
           'facetapi',
@@ -80,7 +80,7 @@ function search_api_ajax_search_api_ajax_settings() {
     }
 
     if (!empty($path)) {
-      
+
       // needed to add current page path to ajax
       drupal_add_js(array('search_api_ajax_path' => $path), 'setting');
     }
@@ -95,7 +95,7 @@ function search_api_ajax_search_api_ajax_settings() {
  */
 function search_api_ajax_menu() {
   $items = array();
-  
+
   // during uninstallation, this would lead to a fatal error otherwise.
   if (module_exists('taxonomy')) {
     $items['search_api_ajax/%/%'] = array(
@@ -215,9 +215,17 @@ function search_api_ajax_preprocess_page(&$vars, $hook) {
   if (!search_api_current_search()) {
     return;
   }
+
+  drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
-  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/jquery.livequery.js');
-  theme('search_api_ajax_js');
+  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/jquery.livequery.js', array('scope' => 'footer'));
+  if (module_exists('libraries') && $library = libraries_get_path('yui')) {
+    drupal_add_js($library . '/build/yui/yui-min.js', array('scope' => 'footer'));
+  }
+  else {
+    drupal_add_js('http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js', 'external');
+  }
+  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.js', array('scope' => 'footer'));
 }
 
 /**
@@ -238,17 +246,6 @@ function search_api_ajax_debug($data = NULL) {
  */
 function search_api_ajax_theme($existing, $type, $theme, $path) {
   return array('search_api_ajax_js' => array('arguments' => array()));
-}
-
-/**
- * Override this function in your theme if you want to swap this module's
- * JavaScript for your own. By default we remotely include the YUI stack.
- * The YUI3 stack will include whatever dependencies it needs by itself.
- */
-function theme_search_api_ajax_js() {
-  drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
-  drupal_add_js('http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js', 'external');
-  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.js', array('scope' => 'footer'));
 }
 
 /**
