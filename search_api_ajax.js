@@ -160,21 +160,21 @@
       // @see http://api.jquery.com/category/selectors/attribute-selectors/
       // Create an array of selectors for readability.
       var selectors = [selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '"]', selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]'];
-      $(selectors.join(', ')).livequery('click', function() {
+      $(selectors.join(', ')).live('click', function() {
         return Drupal.search_api_ajax.navigate($(this).attr('href'));
       });
       // Add support for facetapi checkboxes widget.
       // Unbind facetapi click event.
       $(selector + ' .facetapi-checkbox').unbind('click');
-      $(selector + ' .facetapi-checkbox').livequery('click', function() {
+      $(selector + ' .facetapi-checkbox').live('click', function() {
         return Drupal.search_api_ajax.navigate($(this).next('a').attr('href'));
       })
       // observe search keys forms (or views input forms, must be custom set)
-      $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
         return Drupal.search_api_ajax.navigate($(this).find('input[name*="keys"]').val());
       });
       // observe facet range sliders
-      $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').livequery('submit', function() {
+      $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
         var separator = '?';
         if ($(this).find('input[name="range-ajax-target"]').val().indexOf("?") !== -1) {
           separator = '&';
@@ -212,7 +212,7 @@
   Drupal.behaviors.search_api_ajax = {
     attach: function(context, settings) {
 
-      // initialize livequery() event only if there is an active search
+      // initialize live() event only if there is an active search
       // only needed for search api pages, not for views paths
       if (Drupal.search_api_ajax.url_to_state(window.location.href) != '' || isView === 1) {
         Drupal.search_api_ajax.initialize();

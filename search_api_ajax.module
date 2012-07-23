@@ -205,7 +205,6 @@ function search_api_ajax_preprocess_page(&$vars, $hook) {
 
   drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
-  drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/jquery.livequery.js', array('scope' => 'footer'));
   if (module_exists('libraries') && $library = libraries_get_path('yui')) {
     drupal_add_js($library . '/build/yui/yui-min.js', array('scope' => 'footer'));
   }
