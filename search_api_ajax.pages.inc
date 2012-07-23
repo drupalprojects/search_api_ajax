@@ -111,10 +111,14 @@ function search_api_ajax_return_json($return) {
       }
     }
 
-    // merge all scopes and settings
-    $javascript = drupal_add_js(NULL, NULL, NULL);
-    $scopes = call_user_func_array('array_merge_recursive', $javascript);
-    $json['settings'] = call_user_func_array('array_merge_recursive', array($scopes['data']));
+    // merge all JS scopes and settings
+    // copied from core ajax.inc
+    $scripts = drupal_add_js();
+    if (!empty($scripts['settings'])) {
+      $settings = $scripts['settings'];
+      $json['settings'] = call_user_func_array('array_merge_recursive', $settings['data']);
+    }
+
     $json['debug'] = search_api_ajax_debug();
 
     drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
