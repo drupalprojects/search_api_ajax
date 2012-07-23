@@ -1,5 +1,6 @@
 name = Search ajaxified
 description = "Ajaxifies Search API pages with jQuery Livequery and Yahoo! iFrame."
 dependencies[] = search_api
+dependencies[] = facetapi_pretty_paths
 core = 7.x
 package = Search

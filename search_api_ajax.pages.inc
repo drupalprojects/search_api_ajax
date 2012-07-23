@@ -22,11 +22,9 @@ function search_api_ajax_proxy_views($name, $display, $keys = NULL) {
     return MENU_NOT_FOUND;
   }
 
-  $path = search_api_ajax_get_views_path($view->display[$display]->display_options['path'], 1);
-  if ($keys) {
-    $path = $path . '/' . $keys;
-  }
-
+  // ?query is passed on through $.get in
+  // search_api_ajax.js::Drupal.search_api_ajax.request_callback
+  $path = str_replace('search_api_ajax/', '', $_GET['q']);
   $return = menu_execute_active_handler($path, FALSE);
   search_api_ajax_return_json($return);
 }

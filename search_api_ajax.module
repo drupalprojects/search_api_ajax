@@ -205,12 +205,7 @@ function search_api_ajax_preprocess_page(&$vars, $hook) {
 
   drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
-  if (module_exists('libraries') && $library = libraries_get_path('yui')) {
-    drupal_add_js($library . '/build/yui/yui-min.js', array('scope' => 'footer'));
-  }
-  else {
-    drupal_add_js('http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js', 'external');
-  }
+  drupal_add_library('system', 'jquery.bbq');
   drupal_add_js(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.js', array('scope' => 'footer'));
 }
 
