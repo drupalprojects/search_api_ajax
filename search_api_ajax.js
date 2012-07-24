@@ -4,12 +4,13 @@
   /**
    * We use the following jQuery BBQ hash states:
    *
-   * #path: the facetapi_pretty path
+   * #path: the (facetapi_pretty) path
    * #query: search ?query=<query>
    * #sort: sort field name
    * #order: sort order
    * #items_per_page: Views items_per_page
    * #page: Views paging
+   * #f: the regular facetapi f query
    */
 
   // Content settings
@@ -61,7 +62,7 @@
     urlPath = url.split('?');
     path = Drupal.search_api_ajax.readUrl(urlPath[0]);
     if (path != undefined && path != '') {
-      state['path'] = path;
+      state['path'] = decodeURIComponent(path);
     }
 
     // Use merge_mode: 2 to completely replace state (removing empty fragments)
@@ -75,7 +76,7 @@
     for ( i = 0; i < hashes.length; i++) {
       hash = hashes[i].split('=');
       if (hash[1] != undefined && hash[1] != '') {
-        state[hash[0]] = hash[1];
+        state[hash[0]] = decodeURIComponent(hash[1]);
       }
     }
     return state;
@@ -120,7 +121,8 @@
       sort: data['sort'],
       order: data['order'],
       items_per_page: data['items_per_page'],
-      page: data['page']
+      page: data['page'],
+      f: data['f'],
     }, Drupal.search_api_ajax.responseCallback, 'json');
   };
 
@@ -196,7 +198,9 @@
     if (query !== undefined) {
       var state = {};
       state['query'] = query;
-      $.bbq.pushState(state);
+
+      // merge_mode 2 clears everything else
+      $.bbq.pushState(state, 2);
     }
     return false;
   };
@@ -205,7 +209,31 @@
   // Create Pretty Facet Path like: <field>/<from>/<to>
   Drupal.search_api_ajax.navigateRanges = function(field, from, to) {
     var state = {};
-    state['path'] = field + '/[' + from + ' TO ' + to + ']';
+
+    // Get current state, check if state exists
+    var exists = false;
+    var path = $.bbq.getState('path');
+    if (path != undefined && path != '') {
+      var splitStates = path.split('/');
+      $.each(splitStates, function(index, value) {
+        if (!(index % 2) && value == field) {
+          exists = splitStates[index + 1];
+        }
+      });
+    }
+
+    // Decision: replace existing range or add new
+    newRange = '[' + from + ' TO ' + to + ']';
+    if (exists) {
+      state['path'] = path.replace(exists, newRange);
+    }
+    else if (path != undefined && path != '') {
+      state['path'] = path + '/' + field + '/' + newRange;
+    }
+    else {
+      state['path'] = field + '/' + newRange;
+    }
+
     $.bbq.pushState(state);
     return false;
   };
@@ -235,6 +263,7 @@
   };
 
   // Initialize
+  // @todo listeners use live() and thus only need to be fired once(?)
   Drupal.search_api_ajax.initialize();
 
   // If hash directly entered on page load (e.g. external link)

@@ -103,9 +103,9 @@ function search_api_ajax_return_json($return) {
 
         // new blocks may have come into existence, we notify about them
         // otherwise they would never be displayed to the user
+        // @note that we have to strtolower the final $block->delta (!!)
         // @see search_api_ajax.js
-        $block_delta = strtolower($block->delta);
-        $json['blocks'][$block->module . '_' . $block->delta] = str_replace('_', '-', '#block-' . $block->module . '-' . $block->delta);
+        $json['blocks'][$block->module . '_' . $block->delta] = str_replace('_', '-', '#block-' . $block->module . '-' . strtolower($block->delta));
       }
     }
 
