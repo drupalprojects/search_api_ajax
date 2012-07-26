@@ -28,6 +28,9 @@
   var opacity = Drupal.settings.search_api_ajax.opacity;
   var speed = Drupal.settings.search_api_ajax.scrollspeed;
 
+  // Drupal overlay.module trigger helper
+  var overlay = false;
+
   // Read URL and remove Drupal base with RegExp
   Drupal.search_api_ajax.readUrl = function(url) {
     return url.replace(new RegExp('^.*' + Drupal.settings.basePath + ajaxPath + '/' + '?'), '');
@@ -63,6 +66,18 @@
 
   // Post request to /search_api_ajax/path?query=
   Drupal.search_api_ajax.requestCallback = function(data) {
+
+    // Avoid trigger on Drupal's #overlay
+    if ($.bbq.getState('overlay')) {
+      overlay = true;
+      return;
+    }
+
+    // Avoid trigger after closing overlay
+    if (overlay === true) {
+      overlay = false;
+      return;
+    }
 
     // Visual effect: prepare for new data arrival
     if (content) {
