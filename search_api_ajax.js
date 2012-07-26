@@ -28,27 +28,6 @@
   var opacity = Drupal.settings.search_api_ajax.opacity;
   var speed = Drupal.settings.search_api_ajax.scrollspeed;
 
-  // Re-fire AJAX when needed
-  Drupal.behaviors.search_api_ajax = {
-    attach: function(context, settings) {
-      if (Drupal.search_api_ajax.readUrl(window.location.href) != '') {
-        Drupal.search_api_ajax.initialize();
-      }
-    }
-  };
-
-  // Initialize listeners
-  Drupal.search_api_ajax.initialize = function() {
-    if (content) {
-      Drupal.search_api_ajax.ajax(content);
-    }
-    if (blocks) {
-      for (var block in blocks) {
-        Drupal.search_api_ajax.ajax(blocks[block]);
-      }
-    }
-  };
-
   // Read URL and remove Drupal base with RegExp
   Drupal.search_api_ajax.readUrl = function(url) {
     return url.replace(new RegExp('^.*' + Drupal.settings.basePath + ajaxPath + '/' + '?'), '');
@@ -262,9 +241,11 @@
     });
   };
 
-  // Initialize
-  // @todo listeners use live() and thus only need to be fired once(?)
-  Drupal.search_api_ajax.initialize();
+  // Initialize live() listeners on first page load
+  if ( typeof (searchApiAjaxInit) == 'undefined') {
+    Drupal.search_api_ajax.ajax('body');
+    searchApiAjaxInit = true;
+  }
 
   // If hash directly entered on page load (e.g. external link)
   data = $.bbq.getState();

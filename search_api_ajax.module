@@ -199,13 +199,14 @@ function search_api_ajax_modules() {
  * @see http://developer.yahoo.com/yui/history/
  */
 function search_api_ajax_preprocess_page(&$vars, $hook) {
-  $return = TRUE;
+  $return = FALSE;
   foreach (search_api_current_search() as $key => $search) {
-    if (strpos($key, 'facets_block') === FALSE) {
-      $return = FALSE;
+    if (strpos($key, 'facets_block') !== FALSE) {
+      continue;
     }
+    $return = TRUE;
   }
-  if ($return) {
+  if (!$return) {
     return;
   }
 
