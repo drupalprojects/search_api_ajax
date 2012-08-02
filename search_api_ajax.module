@@ -130,8 +130,6 @@ function search_api_ajax_menu() {
               'file' => 'search_api_ajax.pages.inc',
             );
           }
-          
-
 
           // if i18_page_views module is used for multiple i18n paths
           if (module_exists('i18n_page_views')) {
