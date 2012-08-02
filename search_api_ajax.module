@@ -130,10 +130,34 @@ function search_api_ajax_menu() {
               'file' => 'search_api_ajax.pages.inc',
             );
           }
+          
+
+
+          // if i18_page_views module is used for multiple i18n paths
+          if (module_exists('i18n_page_views')) {
+            $enabled_languages = language_list('enabled');
+            foreach ($enabled_languages[1] as $lang_code => $lang_object) {
+              if (isset($display->display_options['path_' . $lang_code]) && !(empty($display->display_options['path_' . $lang_code]))) {
+                $items['search_api_ajax/' . $display->display_options['path_' . $lang_code]] = array(
+                  'title' => isset($display->display_title) ? $display->display_title : '',
+                  'description' => (string)$view->human_name,
+                  'page callback' => 'search_api_ajax_proxy_views',
+                  'page arguments' => array(
+                    (string)$view->name,
+                    (string)$display_name
+                  ),
+                  'access arguments' => array('access content'),
+                  'type' => MENU_CALLBACK,
+                  'file' => 'search_api_ajax.pages.inc',
+                );
+              }
+            }
+          }
         }
       }
     }
   }
+
   return $items;
 }
 
