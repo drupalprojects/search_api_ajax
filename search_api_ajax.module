@@ -171,7 +171,6 @@ function search_api_ajax_modules() {
       'search_api_facets',
       'search_api_ranges',
       'search_api_sorts',
-      'search_api_widgets',
       'facetapi',
       'facetapi_tagcloud',
     );

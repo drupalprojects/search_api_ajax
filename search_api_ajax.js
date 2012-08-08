@@ -201,12 +201,14 @@
 
   // Helper function to navigate on new range
   // Create Pretty Facet Path like: <field>/<from>/<to>
-  Drupal.search_api_ajax.navigateRanges = function(field, from, to) {
+  Drupal.search_api_ajax.navigateRanges = function(path, field, from, to) {
     var state = {};
 
     // Get current state, check if state exists
     var exists = false;
-    var path = $.bbq.getState('path');
+    if ($.bbq.getState('path')) {
+      path = $.bbq.getState('path');  
+    }
     if (path != undefined && path != '') {
       var splitStates = path.split('/');
       $.each(splitStates, function(index, value) {
@@ -249,10 +251,11 @@
 
     // Observe facet range sliders
     $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
+      rangeTarget = $(this).find('input[name="range-ajax-target"]').val();
       rangeField = $(this).find('input[name="range-field"]').val();
       rangeFrom = $(this).find('input[name="range-from"]').val();
       rangeTo = $(this).find('input[name="range-to"]').val();
-      return Drupal.search_api_ajax.navigateRanges(rangeField, rangeFrom, rangeTo);
+      return Drupal.search_api_ajax.navigateRanges(rangeTarget, rangeField, rangeFrom, rangeTo);
     });
   };
 
