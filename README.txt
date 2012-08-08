@@ -1,6 +1,6 @@
 Ajaxify Search API pages.
 
-1. INSTALLATION AND CONFIGURATION
+INSTALLATION AND CONFIGURATION
 
 This Ajax module does not understand your theme CSS id's by default. You must
 implement a custom module hook to let it know about your theme.
@@ -45,8 +45,19 @@ function mymodule_search_api_ajax_settings() {
   return $settings;
 }
 
-2. OPTIONAL: customize YUI3 jquery
+ADDING MODULES' BLOCKS TO THE AJAX SYSTEM
 
-If you want to use your custom YUI3 logic, you can override:
-theme_search_api_ajax_js()
-See search_api_ajax.module
+If you want your third party modules blocks to show up in the AJAX JSON,
+then you need to register them with a custom function:
+
+@see function search_api_ajax_modules() (default modules are included)
+
+/**
+ * Implements hook_search_api_ajax_modules_alter().
+ *
+ * Add custom modules to search api ajax blocks.
+ */
+function mycustommodule_search_api_ajax_modules_alter(&$modules) {
+  $modules[] = 'custom_module';
+}
+
