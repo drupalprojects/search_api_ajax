@@ -116,8 +116,10 @@
     // http://www.jampmark.com/web-scripting/5-solutions-to-url-encoded-slashes-problem-in-apache.html
     path = path.replace('%2F', '%252F');
     path = path.replace('%5C', '%255C');
-    data['query'] = data['query'].replace('%2F', '%252F')
-    data['query'] = data['query'].replace('%5C', '%255C');
+    if (data['query']) {
+      data['query'] = data['query'].replace('%2F', '%252F')
+      data['query'] = data['query'].replace('%5C', '%255C');
+    }
 
     // Get AJAX, callback for returned JSON data
     $.get(Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + path, {
