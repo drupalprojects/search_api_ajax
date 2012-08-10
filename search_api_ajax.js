@@ -44,6 +44,8 @@
     urlPath = url.split('?');
     path = Drupal.search_api_ajax.readUrl(urlPath[0]);
     if (path != undefined && path != '') {
+
+      // jQuery BBQ adds extra double encoding: we need to undo that once
       state['path'] = decodeURIComponent(path);
     }
 
@@ -108,6 +110,14 @@
     if (data['path'] != undefined && data['path'] != '') {
       path = '/' + data['path'];
     }
+
+    // Properly double re-encode forward/backward slashes, e.g.
+    // #path=category/Audio%252FVideo (versus #path=category/Audio%2FVideo)
+    // http://www.jampmark.com/web-scripting/5-solutions-to-url-encoded-slashes-problem-in-apache.html
+    path = path.replace('%2F', '%252F');
+    path = path.replace('%5C', '%255C');
+    data['query'] = data['query'].replace('%2F', '%252F')
+    data['query'] = data['query'].replace('%5C', '%255C');
 
     // Get AJAX, callback for returned JSON data
     $.get(Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + path, {
@@ -204,10 +214,13 @@
   Drupal.search_api_ajax.navigateRanges = function(path, field, from, to) {
     var state = {};
 
+    urlPath = path.split('?');
+    path = Drupal.search_api_ajax.readUrl(urlPath[0]);
+
     // Get current state, check if state exists
     var exists = false;
     if ($.bbq.getState('path')) {
-      path = $.bbq.getState('path');  
+      path = $.bbq.getState('path');
     }
     if (path != undefined && path != '') {
       var splitStates = path.split('/');
