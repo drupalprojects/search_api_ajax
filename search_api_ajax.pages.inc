@@ -48,7 +48,7 @@ function search_api_ajax_return_json($return) {
     }
     $path = str_replace('search_api_ajax/', '', $path);
     drupal_goto($path, array('query' => $params), 301);
-    exit ;
+    exit();
   }
 
   if (is_int($return)) {

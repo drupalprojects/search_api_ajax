@@ -169,10 +169,12 @@ function search_api_ajax_modules() {
   if (is_null($modules)) {
     $modules = array(
       'search_api_facets',
+      'search_api_facetapi',
       'search_api_ranges',
       'search_api_sorts',
       'facetapi',
       'facetapi_tagcloud',
+      'current_search',
     );
     if (module_exists('search_api_views')) {
       $modules[] = 'views';
