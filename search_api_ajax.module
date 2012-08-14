@@ -5,6 +5,16 @@
  */
 
 /**
+ * Load AJAX scripts on every page except the listed pages.
+ */
+define('SEARCH_API_AJAX_VISIBILITY_NOTLISTED', 0);
+
+/**
+ * Load AJAX scripts on only the listed pages.
+ */
+define('SEARCH_API_AJAX_VISIBILITY_LISTED', 1);
+
+/**
  * Implements hook_search_api_ajax_settings().
  */
 function search_api_ajax_search_api_ajax_settings() {
@@ -95,6 +105,17 @@ function search_api_ajax_search_api_ajax_settings() {
  */
 function search_api_ajax_menu() {
   $items = array();
+
+  // administration link
+  $items['admin/config/search/search_api_ajax'] = array(
+    'title' => 'Search API Ajax',
+    'description' => 'Page visibility options for Search API Ajax.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('search_api_ajax_settings'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'search_api_ajax.admin.inc',
+  );
 
   // during uninstallation, this would lead to a fatal error otherwise.
   if (module_exists('search_api_page')) {
@@ -237,6 +258,36 @@ function search_api_ajax_preprocess_page(&$vars, $hook) {
     return;
   }
 
+  // Configuration to enable/disable AJAX by path
+  $pages = variable_get('search_api_ajax_pages', '');
+  $visibility = variable_get('search_api_ajax_visibility', '');
+  if ($pages) {
+    // Convert path to lowercase. This allows comparison of the same path
+    // with different case. Ex: /Page, /page, /PAGE.
+    $pages = drupal_strtolower($pages);
+    // Convert the Drupal path to lowercase
+    $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    // Compare the lowercase internal and lowercase path alias (if any).
+    $page_match = drupal_match_path($path, $pages);
+    if ($path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+    }
+    // When $pages has a value of 0 (VISIBILITY_NOTLISTED),
+    // the block is displayed on all pages except those listed in $pages.
+    // When set to 1 (VISIBILITY_LISTED), it is displayed only on those
+    // pages listed in $pages.
+    $page_match = !($visibility xor $page_match);
+  }
+  else {
+    $page_match = TRUE;
+  }
+
+  // No match
+  if (!$page_match) {
+    return;
+  }
+
+  // Loas CSS, JS and libraries
   drupal_add_css(drupal_get_path('module', 'search_api_ajax') . '/search_api_ajax.css');
   drupal_add_js(array('search_api_ajax' => module_invoke_all('search_api_ajax_settings')), 'setting');
   drupal_add_library('system', 'jquery.bbq');
