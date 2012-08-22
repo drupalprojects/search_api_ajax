@@ -42,7 +42,7 @@ function search_api_ajax_return_json($return) {
   // check request source type: non-ajax is redirect back to non-ajax URL
   if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
     $params = drupal_get_query_parameters();
-    $path = module_exists('facetapi_pretty_paths') ? $_REQUEST['q'] : $_GET['q'];
+    $path = module_exists('facetapi_pretty_paths') ? ltrim(parse_url(request_uri(), PHP_URL_PATH), '/') : $_GET['q'];
     $real_path = str_replace('search_api_ajax/', '', $path);
     drupal_goto($real_path, array('query' => $params), 301);
     exit();
