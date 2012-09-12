@@ -263,7 +263,7 @@
 
     // Observe facet range sliders
     $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
-      rangeTarget = $(this).find('input[name="path"]').val();
+      rangeTarget = Drupal.search_api_ajax.readUrl('/' + $(this).find('input[name="path"]').val());
       rangeField = $(this).find('input[name="range-field"]').val();
       rangeFrom = $(this).find('input[name="range-from"]').val();
       rangeTo = $(this).find('input[name="range-to"]').val();
