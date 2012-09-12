@@ -216,9 +216,6 @@
   Drupal.search_api_ajax.navigateRanges = function(path, field, from, to) {
     var state = {};
 
-    urlPath = path.split('?');
-    path = Drupal.search_api_ajax.readUrl(urlPath[0]);
-
     // Get current state, check if state exists
     var exists = false;
     if ($.bbq.getState('path')) {
@@ -266,7 +263,7 @@
 
     // Observe facet range sliders
     $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
-      rangeTarget = Drupal.search_api_ajax.readUrl($(this).find('input[name="path"]').val());
+      rangeTarget = $(this).find('input[name="path"]').val();
       rangeField = $(this).find('input[name="range-field"]').val();
       rangeFrom = $(this).find('input[name="range-from"]').val();
       rangeTo = $(this).find('input[name="range-to"]').val();
