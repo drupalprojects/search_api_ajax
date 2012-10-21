@@ -257,7 +257,7 @@
     });
 
     // Observe search keys forms (or views input forms, must be custom set)
-    $(selector + ' form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
+    $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
       return Drupal.search_api_ajax.navigateQuery($(this).find('input[name*="keys"]').val());
     });
 
