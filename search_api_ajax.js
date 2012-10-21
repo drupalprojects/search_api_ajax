@@ -111,14 +111,14 @@
       path = '/' + data['path'];
     }
 
-    // Properly double re-encode forward/backward slashes, e.g.
+    // Properly double re-encode all instances of forward/backward slashes, e.g.
     // #path=category/Audio%252FVideo (versus #path=category/Audio%2FVideo)
     // http://www.jampmark.com/web-scripting/5-solutions-to-url-encoded-slashes-problem-in-apache.html
-    path = path.replace('%2F', '%252F');
-    path = path.replace('%5C', '%255C');
+    path = path.replace(/%2F/g, '%252F');
+    path = path.replace(/%5C/g, '%255C');
     if (data['query']) {
-      data['query'] = data['query'].replace('%2F', '%252F')
-      data['query'] = data['query'].replace('%5C', '%255C');
+      data['query'] = data['query'].replace(/%2F/g, '%252F')
+      data['query'] = data['query'].replace(/%5C/g, '%255C');
     }
 
     // Get AJAX, callback for returned JSON data
