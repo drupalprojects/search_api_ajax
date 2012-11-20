@@ -256,12 +256,17 @@
       return Drupal.search_api_ajax.navigateUrl($(this).attr('href'));
     });
 
-   // Add support for facetapi checkboxes widget.
-   // Unbind facetapi click event.
-   $(selector + ' .facetapi-checkbox').unbind('click');
-   $(selector + ' .facetapi-checkbox').live('click', function() {
-     return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
-   })
+    // Add support for facetapi checkboxes widget.
+    // Unbind facetapi click event.
+    $(selector + ' .facetapi-checkbox').unbind('click');
+    $(selector + ' .facetapi-checkbox').live('click', function() {
+      return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
+    })
+
+    // Observe facet range select widgets    
+    $(selector + ' select[id^="facetapi_select"]').live('change', function() {
+      return Drupal.search_api_ajax.navigateUrl($(this).val());
+    });
 
     // Observe search keys forms (or views input forms, must be custom set)
     $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
