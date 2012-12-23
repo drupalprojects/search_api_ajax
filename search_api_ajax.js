@@ -207,8 +207,11 @@
 
       // merge_mode 2 clears everything else
       $.bbq.pushState(state, 2);
+      return false;
     }
-    return false;
+
+    // If nothing was updated, continue the default action
+    return true;
   };
 
   // Helper function to navigate on new range
