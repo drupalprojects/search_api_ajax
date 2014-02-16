@@ -1,4 +1,13 @@
 (function($) {
+  /**
+   * Apply the "observe and react" through behavior.
+   */
+  Drupal.behaviors.search_api_ajax = {
+    attach: function (context, settings) {
+        Drupal.search_api_ajax.ajax('body');
+    }
+  }
+
   Drupal.search_api_ajax = {};
 
   /**
