@@ -88,7 +88,7 @@
         $(content + ':first').fadeTo('fast', opacity);
       }
       if (spinner) {
-        $('#content').append('<div id="search-api-ajax-spinner"><img class="spinner" src="' + Drupal.settings.basePath + spinner + '" /></div>')
+        $('#content').append('<div id="search-api-ajax-spinner"><img class="spinner" src="' + Drupal.settings.basePath + spinner + '" /></div>');
       }
     }
 
@@ -98,7 +98,7 @@
       var offset = $(target).offset();
       var scrollTarget = target;
       while ($(scrollTarget).scrollTop() == 0 && $(scrollTarget).parent()) {
-        scrollTarget = $(scrollTarget).parent()
+        scrollTarget = $(scrollTarget).parent();
       }
       if (offset.top - 10 < $(scrollTarget).scrollTop()) {
         $(scrollTarget).animate({
@@ -118,7 +118,7 @@
     path = path.replace(/%2F/g, '%252F');
     path = path.replace(/%5C/g, '%255C');
     if (data['query']) {
-      data['query'] = data['query'].replace(/%2F/g, '%252F')
+      data['query'] = data['query'].replace(/%2F/g, '%252F');
       data['query'] = data['query'].replace(/%5C/g, '%255C');
     }
 
@@ -195,7 +195,7 @@
   // Helper function to navigate on user actions
   Drupal.search_api_ajax.navigateUrl = function(url) {
     if (url !== undefined) {
-      Drupal.search_api_ajax.urlToState(url)
+      Drupal.search_api_ajax.urlToState(url);
     }
     return false;
   };
@@ -265,7 +265,7 @@
     $(selector + ' .facetapi-checkbox').unbind('click');
     $(selector + ' .facetapi-checkbox').live('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
-    })
+    });
 
     // Observe facet range select widgets    
     $(selector + ' select[id^="facetapi_select"]').live('change', function() {
