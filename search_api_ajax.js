@@ -17,6 +17,7 @@
   var blocks = Drupal.settings.search_api_ajax.blocks;
   var content = Drupal.settings.search_api_ajax.content;
   var regions = Drupal.settings.search_api_ajax.regions;
+  var facetLocations = Drupal.settings.search_api_ajax.facet_locations ? Drupal.settings.search_api_ajax.facet_locations : 'body';
 
   // Path setting
   var ajaxPath = Drupal.settings.search_api_ajax_path;
@@ -255,7 +256,7 @@
 
     // Observe facet and sorts links ^ starts with * contains
     // Check two paths: ^basePath/ajaxPath OR ^search_api_ajax/basePath/ajaxPath
-    $(selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('click', function() {
+    $(selector + ' a[href="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '?"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '#"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '/"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).attr('href'));
     });
 
@@ -288,7 +289,7 @@
 
   // Initialize live() listeners on first page load
   if ( typeof (searchApiAjaxInit) == 'undefined') {
-    Drupal.search_api_ajax.ajax('body');
+    Drupal.search_api_ajax.ajax(facetLocations);
     searchApiAjaxInit = true;
   }
 

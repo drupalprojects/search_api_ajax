@@ -25,7 +25,12 @@ function mymodule_search_api_ajax_settings() {
       'sidebar_first' => '#sidebar-first',
       'sidebar_second' => '#sidebar-second',
     ),
-    
+
+    // OPTIONAL: if you want to decide which regions links are
+    // AJAXified. Will allow you to have links in the search result
+    // that have the same base URL for the search.
+    facet_locations = '#sidebar-first';
+
     // OPTIONAL: if you want to provide an AJAX spinner
     // this paht is for a default spinner path provided with this module
     // @note: see the search_api_ajax.css
