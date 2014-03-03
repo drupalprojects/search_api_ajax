@@ -3,10 +3,10 @@
    * Apply the "observe and react" through behavior.
    */
   Drupal.behaviors.search_api_ajax = {
-    attach: function (context, settings) {
-        Drupal.search_api_ajax.ajax('body');
+    attach: function(context, settings) {
+      Drupal.search_api_ajax.ajax('body');
     }
-  }
+  };
 
   Drupal.search_api_ajax = {};
 
@@ -53,7 +53,7 @@
     // Path is a special case
     urlPath = url.split('?');
     path = Drupal.search_api_ajax.readUrl(urlPath[0]);
-    if (path != undefined && path != '') {
+    if ( typeof path !== 'undefined' && path != '') {
 
       // jQuery BBQ adds extra double encoding: we need to undo that once
       state['path'] = decodeURIComponent(path);
@@ -69,7 +69,7 @@
     hashes = url.slice(url.indexOf('?') + 1).split('&');
     for ( i = 0; i < hashes.length; i++) {
       hash = hashes[i].split('=');
-      if (hash[1] != undefined && hash[1] != '') {
+      if ( typeof hash[1] !== 'undefined' && hash[1] != '') {
         state[hash[0]] = decodeURIComponent(hash[1]);
       }
     }
@@ -117,7 +117,7 @@
     }
 
     path = '';
-    if (data['path'] != undefined && data['path'] != '') {
+    if ( typeof data['path'] !== 'undefined' && data['path'] != '') {
       path = '/' + data['path'];
     }
 
@@ -199,11 +199,25 @@
 
     // Re-fire Drupal attachment behaviors
     Drupal.attachBehaviors('body');
+
+    // Support Google Analytics tracking for ajax requests
+    if ( typeof ga !== 'undefined' && $.isFunction(ga)) {
+      data = $.bbq.getState();
+      if ( typeof data !== 'undefined' && !$.isEmptyObject(data)) {
+        path = $.bbq.getState('path');
+        if (path != '') {
+          ga('send', 'pageview', {
+            'page': Drupal.settings.basePath + ajaxPath + '/' + path,
+            'title': $(document).find("title").text()
+          });
+        }
+      }
+    }
   };
 
   // Helper function to navigate on user actions
   Drupal.search_api_ajax.navigateUrl = function(url) {
-    if (url !== undefined) {
+    if ( typeof url !== undefined) {
       Drupal.search_api_ajax.urlToState(url);
     }
     return false;
@@ -211,7 +225,7 @@
 
   // Helper function to navigate on new query
   Drupal.search_api_ajax.navigateQuery = function(query) {
-    if (query !== undefined) {
+    if ( typeof query !== undefined) {
       var state = {};
       state['query'] = query;
 
@@ -234,7 +248,7 @@
     if ($.bbq.getState('path')) {
       path = $.bbq.getState('path');
     }
-    if (path != undefined && path != '') {
+    if ( typeof path !== 'undefined' && path != '') {
       var splitStates = path.split('/');
       $.each(splitStates, function(index, value) {
         if (!(index % 2) && value == field) {
@@ -248,7 +262,7 @@
     if (exists) {
       state['path'] = path.replace(exists, newRange);
     }
-    else if (path != undefined && path != '') {
+    else if ( typeof path !== 'undefined' && path != '') {
       state['path'] = path + '/' + field + '/' + newRange;
     }
     else {
@@ -276,7 +290,7 @@
       return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
     });
 
-    // Observe facet range select widgets    
+    // Observe facet range select widgets
     $(selector + ' select[id^="facetapi_select"]').live('change', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).val());
     });
@@ -297,14 +311,14 @@
   };
 
   // Initialize live() listeners on first page load
-  if ( typeof (searchApiAjaxInit) == 'undefined') {
+  if ( typeof searchApiAjaxInit === 'undefined') {
     Drupal.search_api_ajax.ajax(facetLocations);
     searchApiAjaxInit = true;
   }
 
   // If hash directly entered on page load (e.g. external link)
   data = $.bbq.getState();
-  if (data != undefined && !$.isEmptyObject(data)) {
+  if ( typeof data !== 'undefined' && !$.isEmptyObject(data)) {
     Drupal.search_api_ajax.requestCallback(data);
   }
 
