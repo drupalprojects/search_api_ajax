@@ -4,7 +4,8 @@
    */
   Drupal.behaviors.search_api_ajax = {
     attach: function(context, settings) {
-      Drupal.search_api_ajax.ajax('body');
+      var facetLocations = Drupal.settings.search_api_ajax.facet_locations ? Drupal.settings.search_api_ajax.facet_locations : 'body';
+      Drupal.search_api_ajax.ajax(facetLocations);
     }
   };
 
@@ -279,29 +280,29 @@
 
     // Observe facet and sorts links ^ starts with * contains
     // Check two paths: ^basePath/ajaxPath OR ^search_api_ajax/basePath/ajaxPath
-    $(selector + ' a[href="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '?"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '#"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '/"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('click', function() {
+    $(selector + ' a[href="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '?"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '#"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '/"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').on('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).attr('href'));
     });
 
     // Add support for facetapi checkboxes widget.
     // Unbind facetapi click event.
     $(selector + ' .facetapi-checkbox').unbind('click');
-    $(selector + ' .facetapi-checkbox').live('click', function() {
+    $(selector + ' .facetapi-checkbox').on('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
     });
 
     // Observe facet range select widgets
-    $(selector + ' select[id^="facetapi_select"]').live('change', function() {
+    $(selector + ' select[id^="facetapi_select"]').on('change', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).val());
     });
 
     // Observe search keys forms (or views input forms, must be custom set)
-    $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
+    $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').on('submit', function() {
       return Drupal.search_api_ajax.navigateQuery($(this).find('input[name*="keys"]').val());
     });
 
     // Observe facet range sliders
-    $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', function() {
+    $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').on('submit', function() {
       rangeTarget = Drupal.search_api_ajax.readUrl('/' + $(this).find('input[name="path"]').val());
       rangeField = $(this).find('input[name="range-field"]').val();
       rangeFrom = $(this).find('input[name="range-from"]').val();
@@ -310,7 +311,7 @@
     });
   };
 
-  // Initialize live() listeners on first page load
+  // Initialize on() listeners on first page load
   if ( typeof searchApiAjaxInit === 'undefined') {
     Drupal.search_api_ajax.ajax(facetLocations);
     searchApiAjaxInit = true;
