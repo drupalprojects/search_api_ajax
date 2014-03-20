@@ -1,9 +1,9 @@
-(functilive($) {
+(function($) {
   /**
    * Apply the "observe and react" through behavior.
    */
   Drupal.behaviors.search_api_ajax = {
-    attach: functilive(context, settings) {
+    attach: function(context, settings) {
       var facetLocations = Drupal.settings.search_api_ajax.facet_locations ? Drupal.settings.search_api_ajax.facet_locations : 'body';
       Drupal.search_api_ajax.ajax(facetLocations);
     }
@@ -43,12 +43,12 @@
   var overlay = false;
 
   // Read URL and remove Drupal base with RegExp
-  Drupal.search_api_ajax.readUrl = functilive(url) {
+  Drupal.search_api_ajax.readUrl = function(url) {
     return url.replace(new RegExp('^.*' + Drupal.settings.basePath + ajaxPath + '/' + '?'), '');
   };
 
   // Translate clicked URL to BBQ state
-  Drupal.search_api_ajax.urlToState = functilive(url) {
+  Drupal.search_api_ajax.urlToState = function(url) {
     state = Drupal.search_api_ajax.getUrlState(url);
 
     // Path is a special case
@@ -65,7 +65,7 @@
   };
 
   // Get URL state
-  Drupal.search_api_ajax.getUrlState = functilive(url) {
+  Drupal.search_api_ajax.getUrlState = function(url) {
     var state = {};
     hashes = url.slice(url.indexOf('?') + 1).split('&');
     for ( i = 0; i < hashes.length; i++) {
@@ -78,7 +78,7 @@
   };
 
   // Post request to /search_api_ajax/path?query=
-  Drupal.search_api_ajax.requestCallback = functilive(data) {
+  Drupal.search_api_ajax.requestCallback = function(data) {
 
     // Avoid trigger on Drupal's #overlay
     if ($.bbq.getState('overlay')) {
@@ -144,7 +144,7 @@
   };
 
   // Process received JSON data
-  Drupal.search_api_ajax.responseCallback = functilive(data) {
+  Drupal.search_api_ajax.responseCallback = function(data) {
 
     // Visual effect: accept data arrival
     if (content) {
@@ -202,7 +202,7 @@
     Drupal.attachBehaviors('body');
 
     // Support Google Analytics tracking for ajax requests
-    if ( typeof ga !== 'undefined' && $.isFunctilive(ga)) {
+    if ( typeof ga !== 'undefined' && $.isFunction(ga)) {
       data = $.bbq.getState();
       if ( typeof data !== 'undefined' && !$.isEmptyObject(data)) {
         path = $.bbq.getState('path');
@@ -217,7 +217,7 @@
   };
 
   // Helper function to navigate on user actions
-  Drupal.search_api_ajax.navigateUrl = functilive(url) {
+  Drupal.search_api_ajax.navigateUrl = function(url) {
     if ( typeof url !== undefined) {
       Drupal.search_api_ajax.urlToState(url);
     }
@@ -225,7 +225,7 @@
   };
 
   // Helper function to navigate on new query
-  Drupal.search_api_ajax.navigateQuery = functilive(query) {
+  Drupal.search_api_ajax.navigateQuery = function(query) {
     if ( typeof query !== undefined) {
       var state = {};
       state['query'] = query;
@@ -241,7 +241,7 @@
 
   // Helper function to navigate on new range
   // Create Pretty Facet Path like: <field>/<from>/<to>
-  Drupal.search_api_ajax.navigateRanges = functilive(path, field, from, to) {
+  Drupal.search_api_ajax.navigateRanges = function(path, field, from, to) {
     var state = {};
 
     // Get current state, check if state exists
@@ -251,7 +251,7 @@
     }
     if ( typeof path !== 'undefined' && path != '') {
       var splitStates = path.split('/');
-      $.each(splitStates, functilive(index, value) {
+      $.each(splitStates, function(index, value) {
         if (!(index % 2) && value == field) {
           exists = splitStates[index + 1];
         }
@@ -276,33 +276,33 @@
 
   // Observe and react to user behavior
   // @see http://api.jquery.com/category/selectors/attribute-selectors/
-  Drupal.search_api_ajax.ajax = functilive(selector) {
+  Drupal.search_api_ajax.ajax = function(selector) {
 
     // Observe facet and sorts links ^ starts with * contains
     // Check two paths: ^basePath/ajaxPath OR ^search_api_ajax/basePath/ajaxPath
-    $(selector + ' a[href="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '?"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '#"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '/"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('click', functilive() {
+    $(selector + ' a[href="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '?"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '#"], ' + selector + ' a[href^="' + Drupal.settings.basePath + ajaxPath + '/"], ' + selector + ' a[href^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').on('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).attr('href'));
     });
 
     // Add support for facetapi checkboxes widget.
     // Unbind facetapi click event.
     $(selector + ' .facetapi-checkbox').unbind('click');
-    $(selector + ' .facetapi-checkbox').live('click', functilive() {
+    $(selector + ' .facetapi-checkbox').on('click', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).next('a').attr('href'));
     });
 
     // Observe facet range select widgets
-    $(selector + ' select[id^="facetapi_select"]').live('change', functilive() {
+    $(selector + ' select[id^="facetapi_select"]').on('change', function() {
       return Drupal.search_api_ajax.navigateUrl($(this).val());
     });
 
     // Observe search keys forms (or views input forms, must be custom set)
-    $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').live('submit', functilive() {
+    $(selector + ' form[action*="' + ajaxPath + '"], ' + selector + ' form[action*="search_api_ajax/' + ajaxPath + '"]').on('submit', function() {
       return Drupal.search_api_ajax.navigateQuery($(this).find('input[name*="keys"]').val());
     });
 
     // Observe facet range sliders
-    $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').live('submit', functilive() {
+    $(selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + ajaxPath + '"], ' + selector + ' .search-api-ranges-widget form[action^="' + Drupal.settings.basePath + 'search_api_ajax/' + ajaxPath + '"]').on('submit', function() {
       rangeTarget = Drupal.search_api_ajax.readUrl('/' + $(this).find('input[name="path"]').val());
       rangeField = $(this).find('input[name="range-field"]').val();
       rangeFrom = $(this).find('input[name="range-from"]').val();
@@ -311,7 +311,7 @@
     });
   };
 
-  // Initialize live() listeners on first page load
+  // Initialize on() listeners on first page load
   if ( typeof searchApiAjaxInit === 'undefined') {
     Drupal.search_api_ajax.ajax(facetLocations);
     searchApiAjaxInit = true;
@@ -324,7 +324,7 @@
   }
 
   // If hash changed through click
-  $(window).bind('hashchange', functilive(e) {
+  $(window).bind('hashchange', function(e) {
     data = e.getState();
     Drupal.search_api_ajax.requestCallback(data);
   });
