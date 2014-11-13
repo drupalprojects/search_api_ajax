@@ -56,6 +56,14 @@ function search_api_ajax_search_api_ajax_settings() {
         ))) {
           $block->delta = strtolower($block->delta);
         }
+
+        // Views exposed filter block's delta always start with and extra "-".
+        // We have to remove manually, otherwise the string operation above will
+        // result an incorrect block id.
+        if ($block->module === "views" && $block->delta[0] === "-") {
+          $block->delta = substr($block->delta, 1);
+        }
+
         $settings['blocks'][$block->module . '_' . $block->delta] = str_replace('_', '-', '#block-' . $block->module . '-' . $block->delta);
       }
     }
